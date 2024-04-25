@@ -1,14 +1,33 @@
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
+import { Text, View } from "@/components/Themed";
+import { useQuery } from "@tanstack/react-query";
+import MovieListItem from "@/components/MovieListItem";
+import { fetchWatchListMovies } from "@/api/watchlist";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+export default function WatchList() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["watchlist"],
+    queryFn: fetchWatchListMovies,
+  });
 
-export default function TabTwoScreen() {
+  console.log("query data:", data);
+
+  if (isLoading) {
+    return <ActivityIndicator size={"large"} />;
+  }
+  if (error) {
+    return <Text>{error.message}</Text>;
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/two.tsx" />
+      <FlatList
+        numColumns={2}
+        data={data}
+        contentContainerStyle={{ gap: 5 }}
+        columnWrapperStyle={{ gap: 5, paddingHorizontal: 5 }}
+        renderItem={({ item }) => <MovieListItem movie={item} />}
+      />
     </View>
   );
 }
@@ -16,16 +35,6 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+    backgroundColor: "#fff",
   },
 });
